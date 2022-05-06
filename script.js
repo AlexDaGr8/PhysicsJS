@@ -13,6 +13,33 @@ let animation = null;
 let frameRate = 1/40; // seconds
 let frameDelay = frameRate * 1000; // ms
 let stopped = false;
+let mouse = { x: 0, y: 0, isDown: false };
+
+let getMousePosition = function(e) {
+  mouse.x = e.pageX - canvas.offsetLeft;
+  mouse.y = e.pageY - canvas.offsetTop;
+}
+let mouseDown = function(e) {
+	if (e.which == 1) {
+		getMousePosition(e);
+		mouse.isDown = true;
+		ball.position.x = mouse.x;
+		ball.position.y = mouse.y;
+	}
+}
+
+let mouseUp = function(e) { 
+	if (e.which == 1) {
+		mouse.isDown = false;
+		ball.velocity.y = (ball.position.y - mouse.y) / 10;
+		ball.velocity.x = (ball.position.x - mouse.x) / 10;
+	}
+}
+
+canvas.onmousemove = getMousePosition;
+canvas.onmousedown = mouseDown;
+canvas.onmouseup = mouseUp;
+
 
 window.onresize = () => {
   width = canvas.width = container.offsetWidth;
@@ -50,7 +77,7 @@ let staticBalls = [
 
 console.log(staticBalls)
 
-let ball = new Ball(ctx,width/2, 0, 15, '#444', 'transparent', 0.1, 3, 2, width, height);
+let ball = new Ball(ctx,width/2, 0, 15, '#444', 'transparent', 1, 3, 2, width, height);
 
 // setup animation loop
 animation = setInterval(draw, frameDelay);
@@ -61,10 +88,29 @@ function draw() {
   ctx.strokeStyle = 'black';
   ctx.strokeRect(0,0,width,height);
 
-  staticBalls.forEach(d => d.circle());
-  
-  ball.update(staticBalls);
+  staticBalls.forEach(d => d.draw());
+
+  if (!mouse.isDown) {
+    ball.update(staticBalls);
+  }
+
+  if (mouse.isDown) {
+    ball.draw()
+    line(ball.position, mouse);
+  }
+
 }
+
+
+function line(p1,p2,color = 'blue') {
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.stroke();
+  ctx.closePath();
+}
+
 
 
 

@@ -70,11 +70,11 @@ function draw() {
 
   staticCircles.forEach(checkCollision)
  
-   animation = requestAnimationFrame(draw);
+  animation = requestAnimationFrame(draw);
 }
 
 function checkCollision(point, id, arr) {
-  let newCircle = getNewLocation(point);
+  let newCircle = getNewLocation(point, mouse);
 
   checkLineCollisions(point, arr);
 
@@ -96,7 +96,7 @@ function checkLineCollisions(point, arr) {
             let lineTo = mouse;
             let circleTo = { x: 0, y: 0, r: 0};
 
-            if (sameDirection && distPointtoMouse > distPointtoD) {
+            if (distPointtoMouse > distPointtoD) {
                 let intersections = intersectionPoints(point,mouse,d);
                 if (intersections.points) {
                     circleTo = { ...intersections.points.a.coords, r: 4 };
@@ -126,17 +126,24 @@ function checkLineCollisions(point, arr) {
     line(point,closest);
 }
 
-function getNewLocation(point) {
-    let slope = getSlope(point,mouse);
-    let newX = newXPoint(point.x,slope,point.r + mouse.r);
-    let newY = newYPoint(point.y,slope,point.r + mouse.r);
-  
-    let plus = { x: newX.plus, y: newY.plus, r: 10 };
-    let minus = { x: newX.minus, y: newY.minus, r: 10 };
-  
-    circle(point,'purple');
+function getNewLocation(point1, point2) {
+    let slope = getSlope(point1,point2);
+    let newDistance = point1.r + point2.r;
+    let denom = Math.sqrt(1 + (slope * slope));
+    let plus = {
+        x: point1.x + (newDistance / denom),
+        y: point1.y + ((newDistance * slope) / denom),
+        r: 10
+    }
+    let minus = {
+        x: point1.x - (newDistance / denom),
+        y: point1.y - ((newDistance * slope) / denom),
+        r: 10
+    }
+
+    circle(point1,'purple');
     let drawCircle = {circle: plus, color: 'green'};
-    if (point.x > mouse.x) {
+    if (point1.x > point2.x) {
       drawCircle.circle = minus;
       drawCircle.color = 'blue'
     }
@@ -277,32 +284,6 @@ function intersectionPoints(a,b,c) {
 
 function is_onLine(a,b,c) {
     return getDistance(a,c) + getDistance(b,c) === getDistance(a,b);
-}
-
-function pointOnLine(pt1, pt2, pt3) {
-    const dx = (pt3.x - pt1.x) / (pt2.x - pt1.x);
-    const dy = (pt3.y - pt1.y) / (pt2.y - pt1.y);
-    const onLine = dx === dy
-
-    // Check on or within x and y bounds
-    const betweenX = 0 <= dx && dx <= 1;
-    const betweenY = 0 <= dy && dy <= 1;
-
-    return onLine && betweenX && betweenY;
-}
-
-function newXPoint(x,m,d) {
-  let denom = Math.sqrt(1 + (m * m));
-  let plus = x + (d / denom);
-  let minus = x - (d / denom);
-  return { plus, minus };
-}
-
-function newYPoint(y,m,d) {
-  let denom = Math.sqrt(1 + (m * m));
-  let plus = y + ((d * m) / denom);
-  let minus = y - ((d * m) / denom);
-  return { plus, minus };
 }
 
 function getDistance(p1,p2) {

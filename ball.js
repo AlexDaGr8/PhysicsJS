@@ -8,9 +8,9 @@ export default class Ball {
         };
         this.mass = m; // kg
         this.radius = r; // 1px = 1cm
-        this.fill = fill;
-        this.stroke = stroke;
-        this.restitution = -0.7;
+        this.fill = fill; // colors
+        this.stroke = stroke; // colors
+        this.restitution = -0.7; // how much lose of movement due to hitting things.
         this.A = Math.PI * this.radius * this.radius / (10000);
         this.ag = 9.81; // gravitational constant m/s
         this.Cd = 0.47; // Coefficient of drag: dimensionless
@@ -34,7 +34,7 @@ export default class Ball {
         }
     }
 
-    circle() {
+    draw() {
         this.ctx.beginPath();
         this.ctx.fillStyle = this.fill;
         this.ctx.strokeStyle = this.stroke;
@@ -120,6 +120,6 @@ export default class Ball {
 
         this.collisions(collisionArr);
         
-        this.circle();
+        this.draw();
     }
 }
